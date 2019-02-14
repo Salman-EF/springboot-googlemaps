@@ -54,4 +54,18 @@ public class NearbySearchServices {
                 Arrays.asList(requestResponse.results), nextPageExist
         );
     }
+
+
+    public List<PlacesSearchResult> nextPageResults() throws Exception {
+        PlacesSearchResponse pageResponse = PlacesApi.nearbySearchQuery(this.contextBuilder(), this.location)
+                .pageToken(this.nextPageString)
+                .await();
+        try {
+            this.nextPageString = pageResponse.nextPageToken;
+        } catch (NullPointerException ex) {
+            System.out.println("No other page.");
+        }
+
+        return Arrays.asList(pageResponse.results);
+    }
 }
