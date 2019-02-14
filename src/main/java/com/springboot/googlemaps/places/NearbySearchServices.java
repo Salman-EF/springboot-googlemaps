@@ -11,7 +11,6 @@ import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.PlacesSearchResult;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,35 +19,39 @@ public class NearbySearchServices {
 
     private static final String API_KEY = "AIzaSyDpqUSmO_slGvAHMyB5y24AZFqcbCnwNVI";
 
-    public static void nearByLocationAndDistance(LatLng location, int distance) throws Exception {
-
-        // The list that will contain all results/places
-        List<PlacesSearchResult> places=new ArrayList<>();
-        // Send the first request
-        GeoApiContext context = new GeoApiContext.Builder()
+    private GeoApiContext contextBuilder() {
+        return new GeoApiContext.Builder()
                 .apiKey(API_KEY)
                 .build();
-        PlacesSearchResponse requestResults = PlacesApi.nearbySearchQuery(context, location)
+    }
+
+    private static String nextPageString = null;
+    private static LatLng location;
+
+    public SearchResponseModel byLocationAndDistance(LatLng location, int distance) throws Exception {
+
+        // Set the global location parameter
+        this.location = location;
+        // Send the first request
+        PlacesSearchResponse requestResponse = PlacesApi.nearbySearchQuery(this.contextBuilder(), location)
                 .radius(distance)
                 .type(PlaceType.FOOD,PlaceType.RESTAURANT)
                 .await();
-        // Get the first page of request results because each Nearby Search or Text Search returns up to 20 establishment results
-        places = Arrays.asList(requestResults.results);
 
         // Now we will check if there's another page of results by checking if the results nextPageToken parameter is null
-        String nextPageToken = requestResults.nextPageToken;
-        // In this loop we will retry the request with nextPageToken while it returned not null
-        // And by that we'll get every page of results
-        while(nextPageToken != null) {
-            places.addAll(
-                    Arrays.asList(
-                            PlacesApi.nearbySearchQuery(context, location).pageToken(nextPageToken).await().results
-                    )
-            );
+        boolean nextPageExist = false;
+        try {
+            if(requestResponse.nextPageToken != null) {
+                this.nextPageString = requestResponse.nextPageToken;
+                nextPageExist = true;
+            }
+        } catch (NullPointerException ex) {
+            System.out.println("No other page.");
         }
 
-		for (PlacesSearchResult place : places) {
-            System.out.println(place.name);
-		}
+        // Return the first page of request results because each Nearby Search or Text Search returns up to 20 establishment results
+        return new SearchResponseModel(
+                Arrays.asList(requestResponse.results), nextPageExist
+        );
     }
 }
