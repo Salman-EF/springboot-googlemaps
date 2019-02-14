@@ -56,16 +56,23 @@ public class NearbySearchServices {
     }
 
 
-    public List<PlacesSearchResult> nextPageResults() throws Exception {
+    public SearchResponseModel nextPageResults() throws Exception {
         PlacesSearchResponse pageResponse = PlacesApi.nearbySearchQuery(this.contextBuilder(), this.location)
                 .pageToken(this.nextPageString)
                 .await();
+
+        boolean nextPageExist = false;
         try {
-            this.nextPageString = pageResponse.nextPageToken;
+            if(pageResponse.nextPageToken != null) {
+                this.nextPageString = pageResponse.nextPageToken;
+                nextPageExist = true;
+            }
         } catch (NullPointerException ex) {
             System.out.println("No other page.");
         }
 
-        return Arrays.asList(pageResponse.results);
+        return new SearchResponseModel(
+                Arrays.asList(pageResponse.results), nextPageExist
+        );
     }
 }
