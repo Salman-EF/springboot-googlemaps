@@ -31,4 +31,16 @@ public class NearbySearchController {
         return ResponseEntity.ok().body(response.getPlaces());
 
     }
+
+    @GetMapping("/googlemaps/api/nearbyshops/paginate")
+    public ResponseEntity<?> paginate() throws Exception {
+
+        SearchResponseModel response = nearbySearchServices.nextPageResults();
+        if (response.isNextPageExists()) {
+            return ResponseEntity.ok().header("next-page").body(response.getPlaces());
+        }
+
+        return ResponseEntity.ok().body(response.getPlaces());
+
+    }
 }
