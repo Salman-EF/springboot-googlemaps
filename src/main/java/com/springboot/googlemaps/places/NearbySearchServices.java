@@ -8,11 +8,9 @@ import com.google.maps.PlacesApi;
 import com.google.maps.model.LatLng;
 import com.google.maps.model.PlaceType;
 import com.google.maps.model.PlacesSearchResponse;
-import com.google.maps.model.PlacesSearchResult;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Service
 public class NearbySearchServices {
