@@ -1,5 +1,5 @@
 # springboot-googlemaps
-Spring-boot web app where I played with Google Maps API Web Services.
+Spring-boot | Google Maps API Web Services.
 
 For now just PlacesApi.
 
